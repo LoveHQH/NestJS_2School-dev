@@ -53,9 +53,9 @@ async function bootstrap() {
       }),
     );
 
-    const redisIoAdapter = new RedisIoAdapter(app);
-    await redisIoAdapter.connectToRedis();
-    app.useWebSocketAdapter(redisIoAdapter);
+    // const redisIoAdapter = new RedisIoAdapter(app);
+    // await redisIoAdapter.connectToRedis();
+    // app.useWebSocketAdapter(redisIoAdapter);
 
     const configService = app.select(SharedModule).get(ConfigService);
     const adminConfig = fs.readFileSync('./serviceAccountKey.json', 'utf8');
