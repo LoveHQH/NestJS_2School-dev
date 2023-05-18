@@ -10668,7 +10668,13 @@ exports.RedisIoAdapter = void 0;
 const platform_socket_io_1 = __webpack_require__(175);
 const redis_1 = __webpack_require__(176);
 const socket_io_redis_1 = __webpack_require__(177);
-const pubClient = new redis_1.RedisClient({ host: 'localhost', port: 6379 });
+const pubClient = redis_1.createClient({
+    password: 'FSDoAC2uZGWhMrCSjK2JpASCG2mwi8GP',
+    socket: {
+        host: 'redis-13344.c54.ap-northeast-1-2.ec2.cloud.redislabs.com',
+        port: 13344
+    }
+});
 const subClient = pubClient.duplicate();
 const redisAdapter = socket_io_redis_1.createAdapter({ pubClient, subClient });
 class RedisIoAdapter extends platform_socket_io_1.IoAdapter {
