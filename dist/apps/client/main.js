@@ -10666,21 +10666,24 @@ module.exports = require("@nestjs/swagger");
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RedisIoAdapter = void 0;
 const platform_socket_io_1 = __webpack_require__(175);
-const redis_1 = __webpack_require__(176);
-const socket_io_redis_1 = __webpack_require__(177);
-const pubClient = redis_1.createClient({
-    password: 'FSDoAC2uZGWhMrCSjK2JpASCG2mwi8GP',
-    socket: {
-        host: 'redis-13344.c54.ap-northeast-1-2.ec2.cloud.redislabs.com',
-        port: 13344
-    }
-});
-const subClient = pubClient.duplicate();
-const redisAdapter = socket_io_redis_1.createAdapter({ pubClient, subClient });
+const redis_adapter_1 = __webpack_require__(176);
+const redis_1 = __webpack_require__(177);
 class RedisIoAdapter extends platform_socket_io_1.IoAdapter {
+    async connectToRedis() {
+        const pubClient = redis_1.createClient({
+            password: 'FSDoAC2uZGWhMrCSjK2JpASCG2mwi8GP',
+            socket: {
+                host: 'redis-13344.c54.ap-northeast-1-2.ec2.cloud.redislabs.com',
+                port: 13344
+            }
+        });
+        const subClient = pubClient.duplicate();
+        await Promise.all([pubClient.connect(), subClient.connect()]);
+        this.adapterConstructor = redis_adapter_1.createAdapter(pubClient, subClient);
+    }
     createIOServer(port, options) {
         const server = super.createIOServer(port, options);
-        server.adapter(redisAdapter);
+        server.adapter(this.adapterConstructor);
         return server;
     }
 }
@@ -10697,13 +10700,13 @@ module.exports = require("@nestjs/platform-socket.io");
 /* 176 */
 /***/ ((module) => {
 
-module.exports = require("redis");
+module.exports = require("@socket.io/redis-adapter");
 
 /***/ }),
 /* 177 */
 /***/ ((module) => {
 
-module.exports = require("socket.io-redis");
+module.exports = require("redis");
 
 /***/ })
 /******/ 	]);
@@ -10770,7 +10773,9 @@ async function bootstrap() {
                 target: false,
             },
         }));
-        app.useWebSocketAdapter(new RedisIoAdapter_1.RedisIoAdapter(app));
+        const redisIoAdapter = new RedisIoAdapter_1.RedisIoAdapter(app);
+        await redisIoAdapter.connectToRedis();
+        app.useWebSocketAdapter(redisIoAdapter);
         const configService = app.select(shared_module_1.SharedModule).get(config_service_1.ConfigService);
         const adminConfig = fs.readFileSync('./serviceAccountKey.json', 'utf8');
         fire.initializeApp({
