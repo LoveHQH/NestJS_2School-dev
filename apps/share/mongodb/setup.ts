@@ -6,7 +6,7 @@ export function setupMongoDb(mongoUri: string) {
     imports: [ConfigModule],
     inject: [ConfigService],
     useFactory: async (configService: ConfigService) => ({
-      uri: configService.get(mongoUri),
+      uri: "mongodb+srv://voiconit19:QYJgTHoRB9Af5BPI@2school.nbk4x6u.mongodb.net/?retryWrites=true&w=majority",
       useUnifiedTopology: true,
       useFindAndModify: false,
       useNewUrlParser: true,
